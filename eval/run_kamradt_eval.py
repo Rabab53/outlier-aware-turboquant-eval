@@ -49,9 +49,12 @@ NEEDLES = [
 ]
 
 def load_haystack(tokenizer, max_tokens, essays_path):
-    essay_files = glob.glob(os.path.join(essays_path, "*.txt"))
+    # Ensure we search for .txt files whether the user included the trailing slash or not
+    search_path = os.path.join(essays_path, "*.txt")
+    essay_files = glob.glob(search_path)
     if not essay_files:
-        raise FileNotFoundError(f"No essay .txt files found in {essays_path}")
+        raise FileNotFoundError(f"No essay .txt files found in {essays_path}
+Make sure you cloned the LLMTest_NeedleInAHaystack repo and are pointing to the 'needlehaystack/PaulGrahamEssays' folder!")
         
     essay_text = ""
     for f in essay_files:
