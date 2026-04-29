@@ -19,26 +19,26 @@ Below is the mathematical adaptation of the paper's Algorithm 1 to include our O
 $$
 \begin{array}{l}
 \hline
-\textbf{Algorithm 1*} \text{: Outlier-Aware } \textsc{TurboQuant}_{\text{mse}} \\
+\textbf{Algorithm 1*}: \text{Outlier-Aware TurboQuant}_{\text{mse}} \\
 \hline
 \textbf{Input: } \text{dimension } d, \text{ bit-width } b, \text{ outlier fraction } p \in (0, 1) \\
-\quad \text{// Global Parameters for Setting up } \textsc{TurboQuant}_{\text{mse}} \\
+\quad \text{// Global Parameters for Setting up TurboQuant}_{\text{mse}} \\
 1: \text{Generate a random rotation matrix } \Pi \in \mathbb{R}^{d \times d} \\
 2: \text{Construct codebook by finding centroids } c_1, c_2, \dots c_{2^b} \in [-1, 1] \text{ that minimize MSE} \\
 \\
 \hline
-3: \textbf{Procedure } \textsc{Quant}_{\text{outlier}}(x) \\
+3: \textbf{Procedure } \text{Quant}_{\text{outlier}}(x) \\
 4: \quad k \leftarrow \lfloor p \cdot d \rfloor \\
-5: \quad \mathcal{O} \leftarrow \arg\text{topk}(|x|, k) \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \; \text{\{Indices of top magnitudes\}} \\
-6: \quad x_{\text{out}} \leftarrow x[\mathcal{O}] \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \text{\{Preserve exact 16-bit outliers\}} \\
-7: \quad x_{\text{in}} \leftarrow \text{mask}(x, \mathcal{O}, 0) \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \text{\{Zero-out the outliers in tensor\}} \\
-8: \quad \text{idx} \leftarrow \textsc{Quant}_{\text{mse}}(x_{\text{in}}) \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \text{\{Apply original quantization to inliers\}} \\
+5: \quad \mathcal{O} \leftarrow \text{topk}(|x|, k) \quad\quad\quad\quad\quad\quad\quad\quad \triangleright \text{Indices of top magnitudes} \\
+6: \quad x_{\text{out}} \leftarrow x[\mathcal{O}] \quad\quad\quad\quad\quad\quad\quad\quad\quad\; \triangleright \text{Preserve exact 16-bit outliers} \\
+7: \quad x_{\text{in}} \leftarrow \text{mask}(x, \mathcal{O}, 0) \quad\quad\quad\quad\quad\quad \triangleright \text{Zero-out the outliers in tensor} \\
+8: \quad \text{idx} \leftarrow \text{Quant}_{\text{mse}}(x_{\text{in}}) \quad\quad\quad\quad\quad\quad \triangleright \text{Apply original quantization to inliers} \\
 9: \quad \textbf{output: } (\text{idx}, \mathcal{O}, x_{\text{out}}) \\
 \\
 \hline
-10: \textbf{Procedure } \textsc{Dequant}_{\text{outlier}}(\text{idx}, \mathcal{O}, x_{\text{out}}) \\
-11: \quad \tilde{x}_{\text{in}} \leftarrow \textsc{Dequant}_{\text{mse}}(\text{idx}) \quad \quad \quad \quad \quad \quad \quad \quad \quad \text{\{Dequantize the inlier tensor\}} \\
-12: \quad \tilde{x}_{\text{in}}[\mathcal{O}] \leftarrow x_{\text{out}} \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \text{\{Restore exact 16-bit outliers over the noise\}} \\
+10: \textbf{Procedure } \text{Dequant}_{\text{outlier}}(\text{idx}, \mathcal{O}, x_{\text{out}}) \\
+11: \quad \tilde{x}_{\text{in}} \leftarrow \text{Dequant}_{\text{mse}}(\text{idx}) \quad\quad\quad\quad\quad \triangleright \text{Dequantize the inlier tensor} \\
+12: \quad \tilde{x}_{\text{in}}[\mathcal{O}] \leftarrow x_{\text{out}} \quad\quad\quad\quad\quad\quad\quad\quad\; \triangleright \text{Restore exact 16-bit outliers} \\
 13: \quad \textbf{output: } \tilde{x}_{\text{in}} \\
 \hline
 \end{array}
