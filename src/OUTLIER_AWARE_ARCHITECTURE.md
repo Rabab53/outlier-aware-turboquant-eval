@@ -18,35 +18,36 @@ The original paper introduces two algorithms: **Algorithm 1** (`TurboQuant_mse`)
 
 Below is the mathematical adaptation of **Algorithm 2** to include our Outlier-Aware logic. By zeroing out the outliers before the residual calculation, we prevent the heavy-tailed spikes from skewing the QJL projection noise matrix, while perfectly restoring them prior to the attention dot-product.
 
-$$
-\begin{array}{l}
-\hline
-\textbf{Algorithm 2*}: \text{Outlier-Aware TurboQuant}_{\text{prod}} \text{ (Optimized for Inner Product)} \\
-\hline
-\textbf{Input: } \text{dimension } d, \text{ bit-width } b, \text{ outlier fraction } p \in (0, 1) \\
-\quad \text{// Global Parameters for Setting up TurboQuant}_{\text{prod}} \\
-1: \text{Instantiate a TurboQuant}_{\text{mse}} \text{ with bit-width } b-1 \text{ as per Algorithm 1} \\
-2: \text{Generate a random projection matrix } S \in \mathbb{R}^{d \times d} \text{ with i.i.d. entries } S_{i,j} \sim \mathcal{N}(0, 1) \\
-\hline
-3: \textbf{Procedure } \text{Quant}_{\text{outlier-prod}}(x) \\
-4: \quad k \leftarrow \lfloor p \cdot d \rfloor \\
-5: \quad \mathcal{O} \leftarrow \text{topk}(|x|, k) \quad\quad\quad\quad\quad\quad\quad\quad\quad\quad \triangleright \text{Indices of top magnitudes} \\
-6: \quad x_{\text{out}} \leftarrow x[\mathcal{O}] \quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad \triangleright \text{Preserve exact 16-bit outliers} \\
-7: \quad x_{\text{in}} \leftarrow \text{mask}(x, \mathcal{O}, 0) \quad\quad\quad\quad\quad\quad\quad\quad \triangleright \text{Zero-out the outliers in tensor} \\
-8: \quad \text{idx} \leftarrow \text{Quant}_{\text{mse}}(x_{\text{in}}) \\
-9: \quad r \leftarrow x_{\text{in}} - \text{Dequant}_{\text{mse}}(\text{idx}) \quad\quad\quad\quad\quad\quad \triangleright \text{Residual of the inliers} \\
-10: \quad \text{qjl} \leftarrow \text{sign}(S \cdot r) \quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad \triangleright \text{QJL on residual vector} \\
-11: \quad \textbf{output: } (\text{idx}, \text{qjl}, \|r\|_2, \mathcal{O}, x_{\text{out}}) \\
-\hline
-12: \textbf{Procedure } \text{Dequant}_{\text{outlier-prod}}(\text{idx}, \text{qjl}, \gamma, \mathcal{O}, x_{\text{out}}) \\
-13: \quad \tilde{x}_{\text{mse}} \leftarrow \text{Dequant}_{\text{mse}}(\text{idx}) \\
-14: \quad \tilde{x}_{\text{qjl}} \leftarrow \frac{\sqrt{\pi/2}}{\sqrt{d}} \cdot \gamma \cdot S^T \cdot \text{qjl} \\
-15: \quad \tilde{x}_{\text{in}} \leftarrow \tilde{x}_{\text{mse}} + \tilde{x}_{\text{qjl}} \quad\quad\quad\quad\quad\quad\quad\quad\quad\quad \triangleright \text{Dense reconstruction of inliers} \\
-16: \quad \tilde{x}_{\text{in}}[\mathcal{O}] \leftarrow x_{\text{out}} \quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad \triangleright \text{Restore exact 16-bit outliers} \\
-17: \quad \textbf{output: } \tilde{x}_{\text{in}} \\
-\hline
-\end{array}
-$$
+
+**Algorithm 2*:** Outlier-Aware TurboQuant$_{\text{prod}}$ (Optimized for Inner Product)
+
+---
+**Input:** dimension $d$, bit-width $b$, outlier fraction $p \in (0, 1)$  
+*// Global Parameters for Setting up TurboQuant$_{\text{prod}}$*  
+1: Instantiate a TurboQuant$_{\text{mse}}$ with bit-width $b-1$ as per Algorithm 1  
+2: Generate a random projection matrix $S \in \mathbb{R}^{d \times d}$ with i.i.d. entries $S_{i,j} \sim \mathcal{N}(0, 1)$  
+
+---
+3: **Procedure** $\text{Quant}_{\text{outlier-prod}}(x)$  
+4: $\quad k \leftarrow \lfloor p \cdot d \rfloor$  
+5: $\quad \mathcal{O} \leftarrow \text{topk}(|x|, k)$ $\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad 	riangleright$ Indices of top magnitudes  
+6: $\quad x_{\text{out}} \leftarrow x[\mathcal{O}]$ $\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad 	riangleright$ Preserve exact 16-bit outliers  
+7: $\quad x_{\text{in}} \leftarrow \text{mask}(x, \mathcal{O}, 0)$ $\quad\quad\quad\quad\quad\quad\quad\quad 	riangleright$ Zero-out the outliers in tensor  
+8: $\quad \text{idx} \leftarrow \text{Quant}_{\text{mse}}(x_{\text{in}})$  
+9: $\quad r \leftarrow x_{\text{in}} - \text{Dequant}_{\text{mse}}(\text{idx})$ $\quad\quad\quad\quad\quad\quad 	riangleright$ Residual of the inliers  
+10: $\quad \text{qjl} \leftarrow \text{sign}(S \cdot r)$ $\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad 	riangleright$ QJL on residual vector  
+11: $\quad$ **output:** $(\text{idx}, \text{qjl}, \|r\|_2, \mathcal{O}, x_{\text{out}})$  
+
+---
+12: **Procedure** $\text{Dequant}_{\text{outlier-prod}}(\text{idx}, \text{qjl}, \gamma, \mathcal{O}, x_{\text{out}})$  
+13: $\quad \tilde{x}_{\text{mse}} \leftarrow \text{Dequant}_{\text{mse}}(\text{idx})$  
+14: $\quad \tilde{x}_{\text{qjl}} \leftarrow \frac{\sqrt{\pi/2}}{\sqrt{d}} \cdot \gamma \cdot S^T \cdot \text{qjl}$  
+15: $\quad \tilde{x}_{\text{in}} \leftarrow \tilde{x}_{\text{mse}} + \tilde{x}_{\text{qjl}}$ $\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad 	riangleright$ Dense reconstruction of inliers  
+16: $\quad \tilde{x}_{\text{in}}[\mathcal{O}] \leftarrow x_{\text{out}}$ $\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad 	riangleright$ Restore exact 16-bit outliers  
+17: $\quad$ **output:** $\tilde{x}_{\text{in}}$  
+
+---
+
 
 
 ---
