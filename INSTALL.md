@@ -59,14 +59,15 @@ export HF_TOKEN="your_huggingface_token_here"
 ---
 
 ### Step 6: Verify the Installation
-Run a quick test on Mistral to ensure everything is hooked up correctly and the GPU doesn't run out of memory. 
+Run a quick test to ensure everything is hooked up correctly and your GPU has sufficient memory. 
 
+**Test Mistral (Requires ~24GB VRAM):**
 ```bash
-python eval/run_kamradt_eval.py \
-    --essays_path ./LLMTest_NeedleInAHaystack/needlehaystack/PaulGrahamEssays \
-    --out_dir ./results \
-    --model_id "mistralai/Mistral-7B-Instruct-v0.3" \
-    --max_context 32000
+python eval/run_kamradt_eval.py     --essays_path ./LLMTest_NeedleInAHaystack/needlehaystack/PaulGrahamEssays     --out_dir ./results     --model_id "mistralai/Mistral-7B-Instruct-v0.3"     --max_context 32000
 ```
 
+**Test Llama 3.1 (Requires ~80GB+ VRAM for 100k context):**
+```bash
+python eval/run_kamradt_eval.py     --essays_path ./LLMTest_NeedleInAHaystack/needlehaystack/PaulGrahamEssays     --out_dir ./results     --model_id "unsloth/Meta-Llama-3.1-8B-Instruct"     --max_context 100000
+```
 If it successfully loads the model and begins printing out fractional scores (e.g., `Depth 10%, Context 3k: 1.0`), your external machine is fully configured!
