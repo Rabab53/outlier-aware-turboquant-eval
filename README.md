@@ -44,6 +44,21 @@ export PYTHONPATH="/mnt/lustre/lustre-in-us-central1-b/team_workspace/ralomairy_
 export HF_TOKEN="your_huggingface_token_here"
 ```
 
+### Optional: Local Installation (For Non-HPC Users)
+If you are not using the shared Slurm environment and want to run this locally, you can install the dependencies using pip or conda:
+
+**Using pip:**
+```bash
+pip install -r requirements.txt
+```
+
+**Using Conda:**
+```bash
+conda env create -f environment.yml
+conda activate turboquant-eval
+```
+*(Note: You will still need access to the base `turboquant_lib` and add it to your `PYTHONPATH`)*
+
 ### 4. Run the Evaluation
 Execute the Kamradt evaluation script. It will automatically intercept the Llama-3.1 KV cache, compress it using our Outlier-Aware architecture, and output the fractional heatmaps.
 

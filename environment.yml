@@ -1,0 +1,16 @@
+name: turboquant-eval
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pytorch
+  - pytorch-cuda=12.1
+  - numpy<2.0.0
+  - matplotlib
+  - seaborn
+  - pip
+  - pip:
+    - transformers>=4.40.0
+    - accelerate>=0.28.0
