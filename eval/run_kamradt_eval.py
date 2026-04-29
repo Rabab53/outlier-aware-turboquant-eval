@@ -119,7 +119,7 @@ def run_kamradt_multi_needle(model, tokenizer, head_dim, mode="fp16", bits=4, ou
         
     return sum(scores) / len(scores)
 
-def plot_heatmap(data, context_lengths, depths, filename, title_base="Llama-3.1-8B Paul Graham"):
+def plot_heatmap(data, context_lengths, depths, filename, title_base=None):
     data_np = np.array(data)
     overall_score = np.mean(data_np) * 100
     plt.figure(figsize=(10, 8))
@@ -134,19 +134,21 @@ def plot_heatmap(data, context_lengths, depths, filename, title_base="Llama-3.1-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--essays_path", type=str, required=True, help="Path to Kamradt PaulGrahamEssays folder")
+        parser.add_argument("--essays_path", type=str, required=True, help="Path to Kamradt PaulGrahamEssays folder")
     parser.add_argument("--out_dir", type=str, default="./results", help="Output directory for results")
+    parser.add_argument("--model_id", type=str, default="unsloth/Meta-Llama-3.1-8B-Instruct", help="HuggingFace Model ID")
+    parser.add_argument("--max_context", type=int, default=100000, help="Maximum context length for the 10x10 matrix")
     args = parser.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)
 
-    model_id = "unsloth/Meta-Llama-3.1-8B-Instruct"
+    model_id = args.model_id
     print(f"Loading {model_id}...")
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16, device_map="auto")
     head_dim = model.config.hidden_size // model.config.num_attention_heads
 
-    context_lengths = np.linspace(1000, 100000, num=10, dtype=int).tolist()
+    context_lengths = np.linspace(1000, args.max_context, num=10, dtype=int).tolist()
     depths = np.linspace(10, 100, num=10, dtype=int).tolist()
 
     print("Loading Paul Graham Essays...")
@@ -185,4 +187,5 @@ if __name__ == "__main__":
         with open(os.path.join(args.out_dir, f"{name}.txt"), "w") as f:
             for row in matrix:
                 f.write(",".join(map(str, row)) + "\n")
-        plot_heatmap(matrix, context_lengths, depths, os.path.join(args.out_dir, f"{name}.png"))
+        short_name = args.model_id.split("/")[-1]
+        plot_heatmap(matrix, context_lengths, depths, os.path.join(args.out_dir, f"{name}.png"), title_base=f"{short_name} Paul Graham")
