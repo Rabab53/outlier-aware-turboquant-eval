@@ -134,7 +134,7 @@ def plot_heatmap(data, context_lengths, depths, filename, title_base=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-        parser.add_argument("--essays_path", type=str, required=True, help="Path to Kamradt PaulGrahamEssays folder")
+    parser.add_argument("--essays_path", type=str, required=True, help="Path to Kamradt PaulGrahamEssays folder")
     parser.add_argument("--out_dir", type=str, default="./results", help="Output directory for results")
     parser.add_argument("--model_id", type=str, default="unsloth/Meta-Llama-3.1-8B-Instruct", help="HuggingFace Model ID")
     parser.add_argument("--max_context", type=int, default=100000, help="Maximum context length for the 10x10 matrix")
