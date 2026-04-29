@@ -14,9 +14,10 @@ export PYTHONPATH="/mnt/lustre/lustre-in-us-central1-b/team_workspace/ralomairy_
 # IMPORTANT: Uncomment the line below and add your token, or export it in your terminal before running sbatch
 # export HF_TOKEN="your_huggingface_token_here"
 
+cd ~/outlier-aware-turboquant-eval
 echo "Starting Mistral-7B-Instruct Needle-in-a-Haystack Evaluation..."
 python eval/run_kamradt_eval.py \
     --essays_path ./LLMTest_NeedleInAHaystack/needlehaystack/PaulGrahamEssays \
-    --out_dir ./results \
+    --out_dir ./results_mistral \
     --model_id "mistralai/Mistral-7B-Instruct-v0.3" \
     --max_context 32000
