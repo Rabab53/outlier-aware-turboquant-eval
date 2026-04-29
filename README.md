@@ -58,6 +58,9 @@ sbatch slurm/run_llama_eval.slurm
 
 # To run the Mistral (32k context) evaluation
 sbatch slurm/run_mistral_eval.slurm
+
+# To run the Gemma 26B MoE (32k context) evaluation
+sbatch slurm/run_gemma_eval.slurm
 ```
 
 You can monitor the progress of your job at any time by reading the output log:
