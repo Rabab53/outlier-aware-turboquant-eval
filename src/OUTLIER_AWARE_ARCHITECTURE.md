@@ -29,7 +29,7 @@ $$
 2: \text{Generate a random projection matrix } S \in \mathbb{R}^{d \times d} \text{ with i.i.d. entries } S_{i,j} \sim \mathcal{N}(0, 1) \\
 \\
 \hline
-3: \textbf{Procedure } \text{Quant}_{\text{outlier\_prod}}(x) \\
+3: \textbf{Procedure } \text{Quant}_{\text{outlier-prod}}(x) \\
 4: \quad k \leftarrow \lfloor p \cdot d \rfloor \\
 5: \quad \mathcal{O} \leftarrow \text{topk}(|x|, k) \quad\quad\quad\quad\quad\quad\quad\quad\quad\quad \triangleright \text{Indices of top magnitudes} \\
 6: \quad x_{\text{out}} \leftarrow x[\mathcal{O}] \quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad \triangleright \text{Preserve exact 16-bit outliers} \\
@@ -40,7 +40,7 @@ $$
 11: \quad \textbf{output: } (\text{idx}, \text{qjl}, \|r\|_2, \mathcal{O}, x_{\text{out}}) \\
 \\
 \hline
-12: \textbf{Procedure } \text{Dequant}_{\text{outlier\_prod}}(\text{idx}, \text{qjl}, \gamma, \mathcal{O}, x_{\text{out}}) \\
+12: \textbf{Procedure } \text{Dequant}_{\text{outlier-prod}}(\text{idx}, \text{qjl}, \gamma, \mathcal{O}, x_{\text{out}}) \\
 13: \quad \tilde{x}_{\text{mse}} \leftarrow \text{Dequant}_{\text{mse}}(\text{idx}) \\
 14: \quad \tilde{x}_{\text{qjl}} \leftarrow \frac{\sqrt{\pi/2}}{\sqrt{d}} \cdot \gamma \cdot S^T \cdot \text{qjl} \\
 15: \quad \tilde{x}_{\text{in}} \leftarrow \tilde{x}_{\text{mse}} + \tilde{x}_{\text{qjl}} \quad\quad\quad\quad\quad\quad\quad\quad\quad\quad \triangleright \text{Dense reconstruction of inliers} \\
