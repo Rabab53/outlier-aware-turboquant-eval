@@ -44,6 +44,29 @@ export PYTHONPATH="/mnt/lustre/lustre-in-us-central1-b/team_workspace/ralomairy_
 export HF_TOKEN="your_huggingface_token_here"
 ```
 
+### 5. Submitting Background Slurm Jobs (Recommended)
+Generating complete 10x10 heatmaps requires thousands of forward passes and can take many hours. Instead of keeping an interactive terminal open, you can submit the evaluation as a background Slurm job.
+
+We have provided ready-to-use Slurm submission scripts in the `slurm/` directory.
+
+1. Open the script (`nano slurm/run_llama_eval.slurm`) and uncomment the `HF_TOKEN` line to insert your token.
+2. Submit the job to the cluster:
+
+```bash
+# To run the Llama-3.1 (100k context) evaluation
+sbatch slurm/run_llama_eval.slurm
+
+# To run the Mistral (32k context) evaluation
+sbatch slurm/run_mistral_eval.slurm
+```
+
+You can monitor the progress of your job at any time by reading the output log:
+```bash
+tail -f llama_eval_<jobid>.out
+```
+
+---
+
 ### Optional: Local Installation (For Non-HPC Users)
 If you are not using the shared Slurm environment and want to run this locally, you can install the dependencies using pip or conda:
 
