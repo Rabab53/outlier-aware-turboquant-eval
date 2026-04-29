@@ -60,7 +60,17 @@ conda activate turboquant-eval
 *(Note: You will still need access to the base `turboquant_lib` and add it to your `PYTHONPATH`)*
 
 ### 4. Run the Evaluation
-Execute the Kamradt evaluation script. It will automatically intercept the Llama-3.1 KV cache, compress it using our Outlier-Aware architecture, and output the fractional heatmaps.
+Execute the Kamradt evaluation script. It will automatically intercept the KV cache, compress it using our Outlier-Aware architecture, and output the fractional heatmaps.
+
+```bash
+python eval/run_kamradt_eval.py     --essays_path ./LLMTest_NeedleInAHaystack/needlehaystack/PaulGrahamEssays     --out_dir ./results     --model_id "unsloth/Meta-Llama-3.1-8B-Instruct"     --max_context 100000
+```
+
+**Customizing for other models (e.g., Mistral):**
+If you want to test a model with a smaller context window (like Mistral's 32k limit), simply change the arguments:
+```bash
+python eval/run_kamradt_eval.py     --essays_path ./LLMTest_NeedleInAHaystack/needlehaystack/PaulGrahamEssays     --out_dir ./results     --model_id "mistralai/Mistral-7B-Instruct-v0.3"     --max_context 32000
+```
 
 ```bash
 python eval/run_kamradt_eval.py \
