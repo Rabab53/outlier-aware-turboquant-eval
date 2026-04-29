@@ -27,7 +27,6 @@ $$
 \quad \text{// Global Parameters for Setting up TurboQuant}_{\text{prod}} \\
 1: \text{Instantiate a TurboQuant}_{\text{mse}} \text{ with bit-width } b-1 \text{ as per Algorithm 1} \\
 2: \text{Generate a random projection matrix } S \in \mathbb{R}^{d \times d} \text{ with i.i.d. entries } S_{i,j} \sim \mathcal{N}(0, 1) \\
-\\
 \hline
 3: \textbf{Procedure } \text{Quant}_{\text{outlier-prod}}(x) \\
 4: \quad k \leftarrow \lfloor p \cdot d \rfloor \\
@@ -38,7 +37,6 @@ $$
 9: \quad r \leftarrow x_{\text{in}} - \text{Dequant}_{\text{mse}}(\text{idx}) \quad\quad\quad\quad\quad\quad \triangleright \text{Residual of the inliers} \\
 10: \quad \text{qjl} \leftarrow \text{sign}(S \cdot r) \quad\quad\quad\quad\quad\quad\quad\quad\quad\quad\quad \triangleright \text{QJL on residual vector} \\
 11: \quad \textbf{output: } (\text{idx}, \text{qjl}, \|r\|_2, \mathcal{O}, x_{\text{out}}) \\
-\\
 \hline
 12: \textbf{Procedure } \text{Dequant}_{\text{outlier-prod}}(\text{idx}, \text{qjl}, \gamma, \mathcal{O}, x_{\text{out}}) \\
 13: \quad \tilde{x}_{\text{mse}} \leftarrow \text{Dequant}_{\text{mse}}(\text{idx}) \\
