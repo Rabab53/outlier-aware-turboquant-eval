@@ -7,35 +7,37 @@ The core algorithm isolates the heavy-tailed activation spikes (outliers) critic
 
 *   **Implementation:** `src/outlier_aware_turboquant.py`
 
-## Getting Started (HPC Cluster Instructions)
+## Getting Started (HPC Cluster Instructions for Team Members)
 
-Since the team is testing on the shared Slurm HPC cluster with NVIDIA H200 GPUs, follow these exact steps to load the correct environment and execute the pipeline.
+Since you are testing on the shared Slurm HPC cluster with NVIDIA H200 GPUs using your own individual logins, you can leverage the globally readable shared workspace to avoid rebuilding the environment from scratch.
 
 ### 1. Request an Interactive GPU Node & Activate Environment
-Do not run this on the login node! Request a compute node and activate the shared virtual environment which already has vLLM, FlashInfer, and PyTorch installed.
+Do not run this on the login node! Request a compute node and activate the shared virtual environment (hosted under the `ralomairy_tahakom_com` workspace) which already has vLLM, FlashInfer, and PyTorch installed.
 
 ```bash
 # Request an interactive node
 srun --partition=nodes13 --nodes=1 --gres=gpu:1 --time=02:00:00 --pty bash
 
-# Activate the shared bare-metal environment
+# Activate the shared bare-metal environment (Read-Only access is sufficient)
 source /mnt/lustre/lustre-in-us-central1-b/team_workspace/ralomairy_tahakom_com/vllm_venv/bin/activate
 ```
 
-### 2. Clone the Repositories
-Clone this evaluator repository and Greg Kamradt's official essay dataset.
+### 2. Clone the Repositories to Your Home Directory
+Clone this evaluator repository and Greg Kamradt's official essay dataset into your own home directory (`~`).
 
 ```bash
+cd ~
+
 # Clone this repository
 git clone https://github.com/Rabab53/outlier-aware-turboquant-eval.git
 cd outlier-aware-turboquant-eval
 
-# Clone the Paul Graham essay dataset
+# Clone the Paul Graham essay dataset inside the folder
 git clone https://github.com/gkamradt/LLMTest_NeedleInAHaystack.git
 ```
 
 ### 3. Set Environment Variables
-Point the Python path to the base `turboquant_lib` on the Lustre drive, and export your HuggingFace token to download the Llama-3.1 model.
+Point the Python path to the base `turboquant_lib` on the shared Lustre drive, and export your HuggingFace token to download the Llama-3.1 model.
 
 ```bash
 export PYTHONPATH="/mnt/lustre/lustre-in-us-central1-b/team_workspace/ralomairy_tahakom_com/turboquant_lib:$PYTHONPATH"
@@ -51,4 +53,4 @@ python eval/run_kamradt_eval.py \
     --out_dir ./results
 ```
 
-The script will automatically print the scores to the console and drop the raw `.txt` arrays and the colorized `.png` heatmaps (complete with the overall average scores) into the `./results` folder.
+The script will automatically print the scores to your console and drop the raw `.txt` arrays and the colorized `.png` heatmaps (complete with the overall average scores) into your local `./results` folder.
