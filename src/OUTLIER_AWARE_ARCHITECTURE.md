@@ -31,14 +31,15 @@ $$
 4: \quad k \leftarrow \lfloor p \cdot d \rfloor \\
 5: \quad \mathcal{O} \leftarrow \arg\text{topk}(|x|, k) \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \; \text{\{Indices of top magnitudes\}} \\
 6: \quad x_{\text{out}} \leftarrow x[\mathcal{O}] \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \text{\{Preserve exact 16-bit outliers\}} \\
-7: \quad \text{idx} \leftarrow \textsc{Quant}_{\text{mse}}(x) \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \text{\{Apply original quantization\}} \\
-8: \quad \textbf{output: } (\text{idx}, \mathcal{O}, x_{\text{out}}) \\
+7: \quad x_{\text{in}} \leftarrow \text{mask}(x, \mathcal{O}, 0) \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \text{\{Zero-out the outliers in tensor\}} \\
+8: \quad \text{idx} \leftarrow \textsc{Quant}_{\text{mse}}(x_{\text{in}}) \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \text{\{Apply original quantization to inliers\}} \\
+9: \quad \textbf{output: } (\text{idx}, \mathcal{O}, x_{\text{out}}) \\
 \\
 \hline
-9: \textbf{Procedure } \textsc{Dequant}_{\text{outlier}}(\text{idx}, \mathcal{O}, x_{\text{out}}) \\
-10: \quad \tilde{x} \leftarrow \textsc{Dequant}_{\text{mse}}(\text{idx}) \quad \quad \quad \quad \quad \quad \quad \quad \quad \text{\{Dense dense reconstruction\}} \\
-11: \quad \tilde{x}[\mathcal{O}] \leftarrow x_{\text{out}} \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \text{\{Restore exact 16-bit outliers\}} \\
-12: \quad \textbf{output: } \tilde{x} \\
+10: \textbf{Procedure } \textsc{Dequant}_{\text{outlier}}(\text{idx}, \mathcal{O}, x_{\text{out}}) \\
+11: \quad \tilde{x}_{\text{in}} \leftarrow \textsc{Dequant}_{\text{mse}}(\text{idx}) \quad \quad \quad \quad \quad \quad \quad \quad \quad \text{\{Dequantize the inlier tensor\}} \\
+12: \quad \tilde{x}_{\text{in}}[\mathcal{O}] \leftarrow x_{\text{out}} \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \text{\{Restore exact 16-bit outliers over the noise\}} \\
+13: \quad \textbf{output: } \tilde{x}_{\text{in}} \\
 \hline
 \end{array}
 $$
