@@ -63,19 +63,21 @@ conda activate turboquant-eval
 Execute the Kamradt evaluation script. It will automatically intercept the KV cache, compress it using our Outlier-Aware architecture, and output the fractional heatmaps.
 
 ```bash
-python eval/run_kamradt_eval.py     --essays_path ./LLMTest_NeedleInAHaystack/needlehaystack/PaulGrahamEssays     --out_dir ./results     --model_id "unsloth/Meta-Llama-3.1-8B-Instruct"     --max_context 100000
+python eval/run_kamradt_eval.py \
+    --essays_path ./LLMTest_NeedleInAHaystack/needlehaystack/PaulGrahamEssays \
+    --out_dir ./results \
+    --model_id "unsloth/Meta-Llama-3.1-8B-Instruct" \
+    --max_context 100000
 ```
 
 **Customizing for other models (e.g., Mistral):**
 If you want to test a model with a smaller context window (like Mistral's 32k limit), simply change the arguments:
 ```bash
-python eval/run_kamradt_eval.py     --essays_path ./LLMTest_NeedleInAHaystack/needlehaystack/PaulGrahamEssays     --out_dir ./results     --model_id "mistralai/Mistral-7B-Instruct-v0.3"     --max_context 32000
-```
-
-```bash
 python eval/run_kamradt_eval.py \
     --essays_path ./LLMTest_NeedleInAHaystack/needlehaystack/PaulGrahamEssays \
-    --out_dir ./results
+    --out_dir ./results \
+    --model_id "mistralai/Mistral-7B-Instruct-v0.3" \
+    --max_context 32000
 ```
 
 The script will automatically print the scores to your console and drop the raw `.txt` arrays and the colorized `.png` heatmaps (complete with the overall average scores) into your local `./results` folder.
