@@ -26,11 +26,7 @@ def build_chat(tokenizer, prompt, max_length, dataset_name):
     if dataset_name in ["trec", "triviaqa", "samsum", "lcc", "repobench-p"]:
         return prompt
         
-    return f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>
-
-{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
-
-"
+    return f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
 
 def get_pred(model, tokenizer, data, max_length, max_gen, dataset_name, dataset2prompt):
     preds = []
