@@ -15,12 +15,22 @@ try:
 except ImportError:
     pass # Assume it is in PYTHONPATH from the cluster
 
-def build_chat(tokenizer, prompt, max_length):
-    tokens = tokenizer.encode(prompt)
-    if len(tokens) > max_length:
-        tokens = tokens[:max_length]
-        prompt = tokenizer.decode(tokens, skip_special_tokens=True)
-    return f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
+def build_chat(tokenizer, prompt, max_length, dataset_name):
+    # Middle truncation exactly as prescribed by LongBench
+    tokenized_prompt = tokenizer(prompt, truncation=False, return_tensors="pt").input_ids[0]
+    if len(tokenized_prompt) > max_length:
+        half = int(max_length/2)
+        prompt = tokenizer.decode(tokenized_prompt[:half], skip_special_tokens=True) + tokenizer.decode(tokenized_prompt[-half:], skip_special_tokens=True)
+        
+    # LongBench specifies that these datasets perform better without chat templates
+    if dataset_name in ["trec", "triviaqa", "samsum", "lcc", "repobench-p"]:
+        return prompt
+        
+    return f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>
+
+{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+
+"
 
 def get_pred(model, tokenizer, data, max_length, max_gen, dataset_name, dataset2prompt):
     preds = []
@@ -30,7 +40,7 @@ def get_pred(model, tokenizer, data, max_length, max_gen, dataset_name, dataset2
         # LongBench prompt template injection
         prompt = prompt_template.format(**d)
         
-        input_text = build_chat(tokenizer, prompt, max_length)
+        input_text = build_chat(tokenizer, prompt, max_length, dataset_name)
         input_ids = tokenizer.encode(input_text, return_tensors="pt").to(model.device)
         
         with torch.no_grad():
@@ -77,9 +87,9 @@ if __name__ == "__main__":
 
     # Load prompt formats from LongBench
     try:
-        with open("/home/ralomairy_tahakom_com/LongBench/config/dataset2prompt.json", "r") as f:
+        with open("/home/ralomairy_tahakom_com/LongBench/LongBench/config/dataset2prompt.json", "r") as f:
             dataset2prompt = json.load(f)
-        with open("/home/ralomairy_tahakom_com/LongBench/config/dataset2maxlen.json", "r") as f:
+        with open("/home/ralomairy_tahakom_com/LongBench/LongBench/config/dataset2maxlen.json", "r") as f:
             dataset2maxlen = json.load(f)
     except:
         dataset2prompt = {}
@@ -135,14 +145,10 @@ if __name__ == "__main__":
         
         # We process ALL samples to exactly replicate the paper's results
         # Max lengths: Llama-3.1-8B supports 128k, but we use LongBench's dataset specific max lengths or 100k
+
         max_length = 120000 
-        dataset_maxlen = dataset2maxlen.get(dataset_name, 31500)
-        # We let it use the maximum available up to 120k to fully replicate the long context scenario
-        
-        # Gen limits based on task
-        max_gen = 64
-        if dataset_name in ["gov_report", "qmsum", "multi_news"]:
-            max_gen = 512 # Summarization needs longer outputs
+        max_gen = dataset2maxlen.get(dataset_name, 128)
+
         
         preds = get_pred(model, tokenizer, data, max_length, max_gen, dataset_name, dataset2prompt)
         
