@@ -150,11 +150,14 @@ if __name__ == "__main__":
     model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16, device_map="auto")
 
 
+
     # Dynamically extract layers and head_dim to support varying architectures
     try:
         # Find the correct layer list
         if hasattr(model, "model") and hasattr(model.model, "layers"):
             layers = model.model.layers
+        elif hasattr(model, "language_model") and hasattr(model.language_model, "layers"):
+            layers = model.language_model.layers
         elif hasattr(model, "layers"):
             layers = model.layers
         else:
