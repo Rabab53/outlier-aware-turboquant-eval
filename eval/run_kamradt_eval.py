@@ -148,7 +148,21 @@ if __name__ == "__main__":
     print(f"Loading {model_id}...")
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16, device_map="auto")
-    head_dim = model.config.hidden_size // model.config.num_attention_heads
+
+    # Dynamically extract head_dim from the model's actual layers to support varying architectures (Llama, Mistral, Gemma MoE)
+    try:
+        if hasattr(model.config, "head_dim"):
+            head_dim = model.config.head_dim
+        elif hasattr(model.config, "hidden_size") and hasattr(model.config, "num_attention_heads"):
+            head_dim = model.config.hidden_size // model.config.num_attention_heads
+        else:
+            # Fallback: extract shape directly from the k_proj layer tensor
+            k_proj_shape = model.model.layers[0].self_attn.k_proj.weight.shape
+            head_dim = k_proj_shape[0] // model.config.num_key_value_heads
+    except Exception as e:
+        print(f"Warning: Could not automatically determine head_dim from config. Defaulting to 128. Error: {e}")
+        head_dim = 128
+
 
     context_lengths = np.linspace(1000, args.max_context, num=10, dtype=int).tolist()
     depths = np.linspace(10, 100, num=10, dtype=int).tolist()
