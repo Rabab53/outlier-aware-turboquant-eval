@@ -87,13 +87,13 @@ def run_single_needle(model, tokenizer, context_length, depth, haystack_tokens, 
 
 def run_kamradt_multi_needle(model, tokenizer, head_dim, mode="fp16", bits=4, outlier_fraction=0.10, context_length=100000, depth=50, haystack_tokens=[]):
     # Clear old hooks
-    for layer in layers:
+    for layer in model.model.layers:
         if hasattr(layer.self_attn.k_proj, '_forward_hooks'):
             layer.self_attn.k_proj._forward_hooks.clear()
 
     if mode != "fp16":
         quantizers = {}
-        for i, layer in enumerate(layers):
+        for i, layer in enumerate(model.model.layers):
             layer_device = layer.self_attn.k_proj.weight.device
             if mode == "baseline":
                 quantizers[i] = TurboQuantMSE(dim=head_dim, bits=bits, device=layer_device)
@@ -148,33 +148,7 @@ if __name__ == "__main__":
     print(f"Loading {model_id}...")
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16, device_map="auto")
-
-
-
-    # Dynamically extract layers and head_dim to support varying architectures
-    try:
-        # Find the correct layer list
-        if hasattr(model, "model") and hasattr(model.model, "layers"):
-            layers = model.model.layers
-        elif hasattr(model, "language_model") and hasattr(model.language_model, "layers"):
-            layers = model.language_model.layers
-        elif hasattr(model, "layers"):
-            layers = model.layers
-        else:
-            raise AttributeError("Could not locate the transformer layers list.")
-
-        # Find head_dim
-        if hasattr(model.config, "head_dim"):
-            head_dim = model.config.head_dim
-        elif hasattr(model.config, "hidden_size") and hasattr(model.config, "num_attention_heads"):
-            head_dim = model.config.hidden_size // model.config.num_attention_heads
-        else:
-            k_proj_shape = layers[0].self_attn.k_proj.weight.shape
-            head_dim = k_proj_shape[0] // model.config.num_key_value_heads
-    except Exception as e:
-        print(f"Warning: Could not automatically determine head_dim from config. Defaulting to 128. Error: {e}")
-        head_dim = 128
-
+    head_dim = model.config.hidden_size // model.config.num_attention_heads
 
     context_lengths = np.linspace(1000, args.max_context, num=10, dtype=int).tolist()
     depths = np.linspace(10, 100, num=10, dtype=int).tolist()
