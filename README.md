@@ -121,3 +121,15 @@ python eval/run_kamradt_eval.py \
 ```
 
 The script will automatically print the scores to your console and drop the raw `.txt` arrays and the colorized `.png` heatmaps (complete with the overall average scores) into your local `./results` folder.
+
+
+### 6. Scoring the LongBench Results
+Once the LongBench background jobs finish, they will output JSONL files into the `results/longbench_*` directories. You can use our provided scoring script to parse these files, evaluate the F1/ROUGE metrics using the official LongBench library, and print the beautifully formatted Markdown table.
+
+```bash
+# Make sure you have the official LongBench evaluator cloned nearby
+git clone https://github.com/THUDM/LongBench.git ../LongBench
+
+# Run the scoring script
+python eval/score_all_longbench.py --results_dir ./results
+```
