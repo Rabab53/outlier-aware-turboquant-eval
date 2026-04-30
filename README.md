@@ -61,6 +61,9 @@ sbatch slurm/run_mistral_eval.slurm
 
 # To run the Gemma 26B MoE (32k context) evaluation
 sbatch slurm/run_gemma_eval.slurm
+
+# To run the WikiText-2 Perplexity evaluation
+sbatch slurm/run_ppl_eval.slurm
 ```
 
 You can monitor the progress of your job at any time by reading the output log:
@@ -86,14 +89,20 @@ conda activate turboquant-eval
 *(Note: You will still need access to the base `turboquant_lib` and add it to your `PYTHONPATH`)*
 
 ### 4. Run the Evaluation
+We provide scripts for two rigorous KV Cache compression evaluations: **Needle-In-A-Haystack** (Factual Recall) and **Perplexity** (Language Modeling capability).
+
+#### A. Needle-In-A-Haystack (Kamradt 5-Fact Average)
 Execute the Kamradt evaluation script. It will automatically intercept the KV cache, compress it using our Outlier-Aware architecture, and output the fractional heatmaps.
 
 ```bash
-python eval/run_kamradt_eval.py \
-    --essays_path ./LLMTest_NeedleInAHaystack/needlehaystack/PaulGrahamEssays \
-    --out_dir ./results \
-    --model_id "unsloth/Meta-Llama-3.1-8B-Instruct" \
-    --max_context 100000
+python eval/run_kamradt_eval.py     --essays_path ./LLMTest_NeedleInAHaystack/needlehaystack/PaulGrahamEssays     --out_dir ./results     --model_id "unsloth/Meta-Llama-3.1-8B-Instruct"     --max_context 100000
+```
+
+#### B. Perplexity (WikiText-2)
+Evaluate the perplexity degradation of the compressed KV cache. Lower is better. The script automatically downloads WikiText-2 and chunks it.
+
+```bash
+python eval/run_ppl_eval.py     --model_id "unsloth/Meta-Llama-3.1-8B-Instruct"     --mode "outlier"     --bits 2     --out_frac 0.10     --out_dir ./results
 ```
 
 **Customizing for other models (e.g., Mistral):**
