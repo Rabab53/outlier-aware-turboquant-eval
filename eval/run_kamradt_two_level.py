@@ -77,12 +77,12 @@ def run_single_needle(model, tokenizer, context_length, depth, haystack_tokens, 
     return 1.0 if success else 0.0
 
 def run_kamradt_multi_needle(model, tokenizer, head_dim, inlier_bits=2, outlier_bits=4, outlier_fraction=0.10, context_length=100000, depth=50, haystack_tokens=[]):
-    for layer in model.model.layers:
+    for layer in layers:
         if hasattr(layer.self_attn.k_proj, '_forward_hooks'):
             layer.self_attn.k_proj._forward_hooks.clear()
 
     quantizers = {}
-    for i, layer in enumerate(model.model.layers):
+    for i, layer in enumerate(layers):
         layer_device = layer.self_attn.k_proj.weight.device
         quantizers[i] = TwoLevelTurboQuantMSE(d=head_dim, inlier_bits=inlier_bits, outlier_bits=outlier_bits, outlier_fraction=outlier_fraction, device=layer_device)
         
@@ -130,15 +130,24 @@ if __name__ == "__main__":
     tokenizer = AutoTokenizer.from_pretrained(args.model_id)
     model = AutoModelForCausalLM.from_pretrained(args.model_id, torch_dtype=torch.bfloat16, device_map="auto")
 
-    # Dynamically extract head_dim from the model's actual layers to support varying architectures (Llama, Mistral, Gemma MoE)
+
+    # Dynamically extract layers and head_dim to support varying architectures
     try:
+        # Find the correct layer list
+        if hasattr(model, "model") and hasattr(model.model, "layers"):
+            layers = model.model.layers
+        elif hasattr(model, "layers"):
+            layers = model.layers
+        else:
+            raise AttributeError("Could not locate the transformer layers list.")
+
+        # Find head_dim
         if hasattr(model.config, "head_dim"):
             head_dim = model.config.head_dim
         elif hasattr(model.config, "hidden_size") and hasattr(model.config, "num_attention_heads"):
             head_dim = model.config.hidden_size // model.config.num_attention_heads
         else:
-            # Fallback: extract shape directly from the k_proj layer tensor
-            k_proj_shape = model.model.layers[0].self_attn.k_proj.weight.shape
+            k_proj_shape = layers[0].self_attn.k_proj.weight.shape
             head_dim = k_proj_shape[0] // model.config.num_key_value_heads
     except Exception as e:
         print(f"Warning: Could not automatically determine head_dim from config. Defaulting to 128. Error: {e}")
