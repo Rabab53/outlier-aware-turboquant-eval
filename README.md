@@ -62,8 +62,13 @@ sbatch slurm/run_mistral_eval.slurm
 # To run the Gemma 26B MoE (32k context) evaluation
 sbatch slurm/run_gemma_eval.slurm
 
-# To run the WikiText-2 Perplexity evaluation
-sbatch slurm/run_ppl_eval.slurm
+# To run the WikiText-2 Perplexity evaluation (Model Agnostic via Arguments)
+# Usage: sbatch slurm/run_ppl_eval.slurm <model_id> <mode> <bits> <out_frac>
+# Example for Mistral at 3-bit Baseline:
+sbatch --job-name=ppl_mistral --output=slurm/logs/ppl_mistral_%j.out slurm/run_ppl_eval.slurm "mistralai/Mistral-7B-Instruct-v0.3" "baseline" 3 0.0
+
+# Example for Llama 3.1 at 2-bit with 10% Outliers:
+sbatch --job-name=ppl_llama --output=slurm/logs/ppl_llama_%j.out slurm/run_ppl_eval.slurm "unsloth/Meta-Llama-3.1-8B-Instruct" "outlier" 2 0.10
 ```
 
 You can monitor the progress of your job at any time by reading the output log:
