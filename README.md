@@ -7,7 +7,7 @@ The core algorithm isolates the heavy-tailed activation spikes (outliers) critic
 
 *   **Implementation:** `src/outlier_aware_turboquant.py`
 
-## Getting Started (HPC Cluster Instructions for Team Members)
+## Getting Started (HPC Cluster Instructions)
 
 Since you are testing on the shared Slurm HPC cluster with NVIDIA H200 GPUs using your own individual logins, you can leverage the globally readable shared workspace to avoid rebuilding the environment from scratch.
 
